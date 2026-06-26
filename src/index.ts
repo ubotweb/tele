@@ -3,38 +3,56 @@ import { Env } from './types/index';
 import { authMiddleware } from './middlewares/auth';
 import { subscriptionMiddleware } from './middlewares/subscription';
 
-// Import Controllers
+// 1. Import SEMUA Controllers
 import { authApp } from './controllers/auth.controller';
 import { projectApp } from './controllers/project.controller';
 import { botApp } from './controllers/bot.controller';
 import { categoryApp } from './controllers/category.controller';
 import { bannerApp } from './controllers/banner.controller';
 import { commandApp } from './controllers/command.controller';
+import { webhookApp } from './controllers/webhook.controller';
+import { adminApp } from './controllers/admin.controller';
+import { productApp } from './controllers/product.controller';
+import { transactionApp } from './controllers/transaction.controller';
+import { orderApp } from './controllers/order.controller';
+import { cloudApp } from './controllers/cloud.controller';
 
-// Hono Instance Utama untuk API
 const apiApp = new Hono<{ Bindings: Env }>();
 
-// 1. Rute Publik (Tanpa Autentikasi)
+// A. Rute Publik
 apiApp.route('/auth', authApp);
+apiApp.route('/webhook', webhookApp); // Webhook Telegram tidak perlu login!
+apiApp.route('/orders', orderApp); // Pembuatan order & webhook QRIS
 
-// 2. Rute Privat Tingkat Pengguna (Hanya butuh Login)
+// B. Rute Admin (Proteksi Super Admin di dalam controllernya)
+apiApp.use('/admin/*', authMiddleware);
+apiApp.route('/admin', adminApp);
+
+// C. Rute Akun/Tenant Umum
 apiApp.use('/projects/*', authMiddleware);
 apiApp.route('/projects', projectApp);
 
-// 3. Rute Privat Tingkat Project (Butuh Login DAN Langganan Aktif per Project)
+// D. Rute Cloud (Bisa di level akun, karena 1 user mungkin punya 1 cloudary untuk semua project)
+apiApp.use('/cloud/*', authMiddleware);
+apiApp.route('/cloud', cloudApp);
+
+// E. Rute Level Project (Proteksi Langganan)
+// Middleware langganan memastikan user hanya bisa akses projectnya jika 'active'
 apiApp.use('/projects/:project_id/bot/*', subscriptionMiddleware);
 apiApp.use('/projects/:project_id/categories/*', subscriptionMiddleware);
 apiApp.use('/projects/:project_id/banners/*', subscriptionMiddleware);
 apiApp.use('/projects/:project_id/commands/*', subscriptionMiddleware);
-// (Product dan Order controller akan disesuaikan di file berikutnya)
+apiApp.use('/projects/:project_id/products/*', subscriptionMiddleware);
+apiApp.use('/projects/:project_id/transactions/*', subscriptionMiddleware);
 
-// 4. Mounting Rute Spesifik Project
+// F. Mounting Rute Spesifik Project
 apiApp.route('/projects/:project_id/bot', botApp);
 apiApp.route('/projects/:project_id/categories', categoryApp);
 apiApp.route('/projects/:project_id/banners', bannerApp);
 apiApp.route('/projects/:project_id/commands', commandApp);
+apiApp.route('/projects/:project_id/products', productApp);
+apiApp.route('/projects/:project_id/transactions', transactionApp);
 
-// Fallback endpoint
-apiApp.get('/', (c) => c.json({ success: true, message: 'SaaS Bot Panel API V2 running smoothly' }));
+apiApp.get('/', (c) => c.json({ success: true, message: 'SaaS Bot API V2' }));
 
 export default apiApp;
