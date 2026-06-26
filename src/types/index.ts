@@ -6,8 +6,7 @@ export interface Env {
 }
 
 export interface JwtPayload {
-    id: string;        // ID Pengguna (User ID)
-    tenant_id: string; // ID Toko/Tenant
+    id: string;        // ID Pengguna Utama (User ID)
     role: 'admin' | 'tenant';
     exp: number;       // Waktu kedaluwarsa token
     iat: number;       // Waktu token diterbitkan
