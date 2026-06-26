@@ -12,36 +12,36 @@ adminApp.use('*', async (c, next) => {
     await next();
 });
 
-// Mendapatkan daftar seluruh tenant beserta status langganannya
-adminApp.get('/tenants', async (c) => {
+// Mendapatkan daftar seluruh project beserta status langganannya
+adminApp.get('/projects', async (c) => {
     const db = c.env.DB;
 
-    const tenants = await db.prepare(`
-        SELECT t.id, t.store_name, t.subscription_status, t.subscription_end_date, u.email, t.created_at
-        FROM tenants t
-        JOIN users u ON t.user_id = u.id
-        ORDER BY t.created_at DESC
+    const projects = await db.prepare(`
+        SELECT p.id, p.project_name as store_name, p.subscription_status, p.subscription_end_date, u.email, p.created_at
+        FROM projects p
+        JOIN users u ON p.user_id = u.id
+        ORDER BY p.created_at DESC
     `).all();
 
-    return c.json({ success: true, data: tenants.results });
+    return c.json({ success: true, data: projects.results });
 });
 
-// Memperpanjang atau mengubah status langganan tenant
-adminApp.post('/tenants/extend', async (c) => {
+// Memperpanjang, mengaktifkan, atau menangguhkan status langganan project
+adminApp.post('/projects/extend', async (c) => {
     const db = c.env.DB;
-    const { tenant_id, days_to_add, status } = await c.req.json();
+    const { project_id, days_to_add, status } = await c.req.json();
 
     try {
-        const tenant = await db.prepare(`SELECT subscription_end_date FROM tenants WHERE id = ?`)
-            .bind(tenant_id)
+        const project = await db.prepare(`SELECT subscription_end_date FROM projects WHERE id = ?`)
+            .bind(project_id)
             .first<{ subscription_end_date: string }>();
 
-        if (!tenant) {
-            return c.json({ success: false, message: 'Tenant not found' }, 404);
+        if (!project) {
+            return c.json({ success: false, message: 'Project not found' }, 404);
         }
 
         // Kalkulasi tanggal baru
-        let currentEndDate = new Date(tenant.subscription_end_date);
+        let currentEndDate = new Date(project.subscription_end_date);
         const now = new Date();
         
         // Jika sudah kedaluwarsa, mulai dari hari ini
@@ -54,10 +54,10 @@ adminApp.post('/tenants/extend', async (c) => {
         const newStatus = status || 'active';
 
         await db.prepare(`
-            UPDATE tenants 
+            UPDATE projects 
             SET subscription_status = ?, subscription_end_date = ? 
             WHERE id = ?
-        `).bind(newStatus, newEndDateStr, tenant_id).run();
+        `).bind(newStatus, newEndDateStr, project_id).run();
 
         return c.json({ success: true, message: 'Subscription updated successfully', data: { new_end_date: newEndDateStr } });
     } catch (error) {
