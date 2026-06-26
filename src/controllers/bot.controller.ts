@@ -9,7 +9,7 @@ botApp.get('/', async (c) => {
     const db = c.env.DB;
 
     const bot = await db.prepare(`
-        SELECT bot_token, bot_username, webhook_url, is_active, display_name, description, admin_telegram_id, is_affiliate, affiliate_commission 
+        SELECT bot_token, bot_username, webhook_url, is_active, display_name, description, admin_telegram_id, is_affiliate, affiliate_commission, tiktok_shop_id 
         FROM bot_configs 
         WHERE project_id = ?
     `).bind(projectId).first();
@@ -21,52 +21,61 @@ botApp.post('/update', async (c) => {
     const projectId = c.req.param('project_id');
     const db = c.env.DB;
     const body = await c.req.json();
-    const { bot_token, display_name, description, admin_telegram_id, is_affiliate, affiliate_commission } = body;
+    const { bot_token, display_name, description, admin_telegram_id, is_affiliate, affiliate_commission, tiktok_shop_id } = body;
     const mainDomain = c.env.MAIN_DOMAIN;
 
     try {
-        const telegramService = new TelegramService(bot_token);
-        
-        const me = await telegramService.getMe();
-        if (!me.ok) {
-            return c.json({ success: false, message: 'Invalid Telegram Bot Token' }, 400);
+        let botUsername = '';
+        let webhookUrl = '';
+
+        // Validasi Telegram hanya dilakukan jika bot_token diisi
+        if (bot_token && bot_token.trim() !== '') {
+            const telegramService = new TelegramService(bot_token);
+            const me = await telegramService.getMe();
+            
+            if (!me.ok) {
+                return c.json({ success: false, message: 'Invalid Telegram Bot Token' }, 400);
+            }
+
+            botUsername = me.result.username;
+            webhookUrl = `https://${mainDomain}/api/webhook/telegram/${projectId}`;
+            const webhookSecret = crypto.randomUUID().replace(/-/g, ''); 
+            
+            const isWebhookSet = await telegramService.setWebhook(webhookUrl, webhookSecret);
+            if (!isWebhookSet) {
+                return c.json({ success: false, message: 'Failed to set Telegram Webhook' }, 500);
+            }
+
+            if (display_name) await telegramService.setMyName(display_name);
+            if (description) await telegramService.setMyDescription(description);
         }
-
-        const botUsername = me.result.username;
-        const webhookUrl = `https://${mainDomain}/api/webhook/telegram/${projectId}`;
-
-        const webhookSecret = crypto.randomUUID().replace(/-/g, ''); 
-        const isWebhookSet = await telegramService.setWebhook(webhookUrl, webhookSecret);
-
-        if (!isWebhookSet) {
-            return c.json({ success: false, message: 'Failed to set Telegram Webhook' }, 500);
-        }
-
-        if (display_name) await telegramService.setMyName(display_name);
-        if (description) await telegramService.setMyDescription(description);
 
         await db.prepare(`
-            INSERT INTO bot_configs (project_id, bot_token, bot_username, webhook_url, is_active, display_name, description, admin_telegram_id, is_affiliate, affiliate_commission)
-            VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
+            INSERT INTO bot_configs (
+                project_id, bot_token, bot_username, webhook_url, is_active, display_name, 
+                description, admin_telegram_id, is_affiliate, affiliate_commission, tiktok_shop_id
+            )
+            VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(project_id) DO UPDATE SET
-            bot_token = excluded.bot_token,
-            bot_username = excluded.bot_username,
-            webhook_url = excluded.webhook_url,
-            is_active = 1,
-            display_name = excluded.display_name,
-            description = excluded.description,
-            admin_telegram_id = excluded.admin_telegram_id,
-            is_affiliate = excluded.is_affiliate,
-            affiliate_commission = excluded.affiliate_commission
+                bot_token = excluded.bot_token,
+                bot_username = excluded.bot_username,
+                webhook_url = excluded.webhook_url,
+                is_active = 1,
+                display_name = excluded.display_name,
+                description = excluded.description,
+                admin_telegram_id = excluded.admin_telegram_id,
+                is_affiliate = excluded.is_affiliate,
+                affiliate_commission = excluded.affiliate_commission,
+                tiktok_shop_id = excluded.tiktok_shop_id
         `).bind(
-            projectId, bot_token, botUsername, webhookUrl, 
+            projectId, bot_token || '', botUsername, webhookUrl, 
             display_name || '', description || '', admin_telegram_id || '', 
-            is_affiliate ? 1 : 0, affiliate_commission || 0
+            is_affiliate ? 1 : 0, affiliate_commission || 0, tiktok_shop_id || null
         ).run();
 
         return c.json({ 
             success: true, 
-            message: 'Bot successfully configured and updated',
+            message: 'Integration successfully configured and updated',
             data: { username: botUsername }
         });
     } catch (error) {
