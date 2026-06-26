@@ -1,122 +1,124 @@
 import { createRoute } from 'honox/factory';
 
 export default createRoute((c) => {
-    const projectId = c.req.param('project_id');
-
     return c.render(
-        <div className="max-w-3xl mx-auto space-y-6">
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Pengaturan Bot Telegram</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Konfigurasi token bot, identitas, dan Admin pengelola pesanan.</p>
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Telegram Bot Setup</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure bot credentials, admin access, and affiliate system.</p>
             </div>
 
-            <form id="bot-config-form" className="bg-white dark:bg-darkcard border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm space-y-5">
-                
-                {/* TOKEN & USERNAME */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bot Token (BotFather)</label>
-                        <input type="text" id="bot_token" required placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-darkbg focus:ring-2 focus:ring-brand outline-none" />
+            <form id="bot-form" className="space-y-6 max-w-3xl bg-gray-50 dark:bg-gray-800/50 p-6 rounded-xl border border-gray-100 dark:border-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bot Token API</label>
+                        <input type="text" id="bot_token" required placeholder="1234567890:AAH_XXXXXXXXXXXX_XXXXXX" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white focus:ring-2 focus:ring-brand outline-none transition-all" />
                     </div>
+
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bot Username (Opsional)</label>
-                        <input type="text" id="bot_username" placeholder="@TokoSayaBot" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-darkbg focus:ring-2 focus:ring-brand outline-none" />
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bot Display Name</label>
+                        <input type="text" id="display_name" placeholder="My Store Bot" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white focus:ring-2 focus:ring-brand outline-none transition-all" />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Admin Telegram ID</label>
+                        <input type="text" id="admin_telegram_id" placeholder="e.g. 5466079572" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white focus:ring-2 focus:ring-brand outline-none transition-all" />
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bot Description</label>
+                        <textarea id="description" rows={2} placeholder="Welcome to our automated digital store!" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white focus:ring-2 focus:ring-brand outline-none transition-all"></textarea>
+                    </div>
+
+                    <div className="bg-white dark:bg-darkcard p-4 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Enable Affiliate System</label>
+                            <select id="is_affiliate" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white outline-none">
+                                <option value="0">Disabled</option>
+                                <option value="1">Enabled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Affiliate Commission (%)</label>
+                            <input type="number" id="affiliate_commission" min="0" max="100" defaultValue="0" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white outline-none" />
+                        </div>
                     </div>
                 </div>
 
-                {/* IDENTITAS BOT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bot Display Name</label>
-                        <input type="text" id="display_name" placeholder="Toko Indo Voucher" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-darkbg focus:ring-2 focus:ring-brand outline-none" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admin Telegram ID</label>
-                        <input type="text" id="admin_telegram_id" placeholder="Misal: 987654321 (Dapatkan dari @userinfobot)" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-darkbg focus:ring-2 focus:ring-brand outline-none" />
-                        <p className="text-xs text-gray-500 mt-1">ID ini digunakan untuk menerima notifikasi pesanan masuk.</p>
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deskripsi Bot / Pesan Sambutan</label>
-                    <textarea id="description" rows={3} placeholder="Selamat datang di bot toko kami. Silakan pilih menu di bawah ini." className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-darkbg focus:ring-2 focus:ring-brand outline-none"></textarea>
-                </div>
-
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-                    <button type="submit" id="btn-save" className="bg-brand hover:bg-sky-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">
-                        Simpan Konfigurasi
+                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="submit" id="btn-save-bot" className="px-8 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand hover:bg-sky-600 focus:outline-none transition-colors">
+                        Save & Deploy
                     </button>
                 </div>
             </form>
 
             <script dangerouslySetInnerHTML={{ __html: `
-                const projectId = "${projectId}";
-                const tk = localStorage.getItem('auth_token');
-
-                // Fungsi untuk mengambil data yang sudah ada dan mengisinya ke form
-                async function loadBotData() {
+                async function loadBotConfig() {
+                    const token = localStorage.getItem('auth_token');
+                    const projectId = window.CURRENT_PROJECT_ID;
                     try {
-                        const res = await fetch(\`/api/projects/\${projectId}/bot\`, {
-                            headers: { 'Authorization': 'Bearer ' + tk }
+                        const res = await fetch('/api/projects/' + projectId + '/bot', {
+                            headers: { 'Authorization': 'Bearer ' + token }
                         });
-                        const result = await res.json();
-                        
-                        if (result.success && result.data) {
-                            const data = result.data;
-                            document.getElementById('bot_token').value = data.bot_token || '';
-                            document.getElementById('bot_username').value = data.bot_username || '';
-                            document.getElementById('display_name').value = data.display_name || '';
-                            document.getElementById('admin_telegram_id').value = data.admin_telegram_id || '';
-                            document.getElementById('description').value = data.description || '';
+                        const data = await res.json();
+                        if (data.success && data.data) {
+                            document.getElementById('bot_token').value = data.data.bot_token || '';
+                            document.getElementById('display_name').value = data.data.display_name || '';
+                            document.getElementById('description').value = data.data.description || '';
+                            document.getElementById('admin_telegram_id').value = data.data.admin_telegram_id || '';
+                            document.getElementById('is_affiliate').value = data.data.is_affiliate || 0;
+                            document.getElementById('affiliate_commission').value = data.data.affiliate_commission || 0;
                         }
                     } catch (e) {
-                        console.error('Gagal memuat data bot:', e);
+                        console.error('Failed to load bot config');
                     }
                 }
 
-                document.getElementById('bot-config-form').addEventListener('submit', async (e) => {
+                document.addEventListener('DOMContentLoaded', loadBotConfig);
+
+                document.getElementById('bot-form').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const btn = document.getElementById('btn-save');
+                    const btn = document.getElementById('btn-save-bot');
+                    const projectId = window.CURRENT_PROJECT_ID;
                     
                     const payload = {
                         bot_token: document.getElementById('bot_token').value,
-                        bot_username: document.getElementById('bot_username').value,
                         display_name: document.getElementById('display_name').value,
+                        description: document.getElementById('description').value,
                         admin_telegram_id: document.getElementById('admin_telegram_id').value,
-                        description: document.getElementById('description').value
+                        is_affiliate: parseInt(document.getElementById('is_affiliate').value),
+                        affiliate_commission: parseFloat(document.getElementById('affiliate_commission').value)
                     };
-
+                    
                     btn.disabled = true;
-                    btn.innerText = 'Menyimpan...';
+                    btn.innerText = 'Saving...';
 
                     try {
-                        const res = await fetch(\`/api/projects/\${projectId}/bot\`, {
+                        const response = await fetch('/api/projects/' + projectId + '/bot/update', {
                             method: 'POST',
                             headers: { 
-                                'Authorization': 'Bearer ' + tk,
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
                             },
                             body: JSON.stringify(payload)
                         });
                         
-                        const result = await res.json();
+                        const result = await response.json();
+                        
                         if (result.success) {
                             window.showToast(result.message, 'success');
                         } else {
-                            window.showToast(result.message, 'error');
+                            window.showToast(result.message || 'Configuration failed', 'error');
                         }
                     } catch (error) {
-                        window.showToast('Terjadi kesalahan jaringan', 'error');
+                        window.showToast('Network error occurred', 'error');
                     } finally {
                         btn.disabled = false;
-                        btn.innerText = 'Simpan Konfigurasi';
+                        btn.innerText = 'Save & Deploy';
                     }
                 });
-
-                // Eksekusi load data saat halaman dimuat
-                document.addEventListener('DOMContentLoaded', loadBotData);
             `}} />
         </div>,
-        { title: 'Bot Setup' }
+        { title: 'Bot Configuration' }
     );
 });
