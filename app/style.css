@@ -1,0 +1,64 @@
+/* Mengintegrasikan basis Tailwind secara murni menggunakan direktif */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    /* Custom Scrollbar Styling - Profesional & Elegan */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1; /* slate-300 */
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8; /* slate-400 */
+    }
+
+    /* Penyesuaian Scrollbar untuk Dark Mode */
+    .dark ::-webkit-scrollbar-thumb {
+        background-color: #475569; /* slate-600 */
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background-color: #64748b; /* slate-500 */
+    }
+
+    /* Menghilangkan seleksi outline tap pada perangkat mobile */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Mengoptimalkan render font untuk ketajaman visual */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+}
+
+/* Animasi khusus untuk komponen Toast dan Modal */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
