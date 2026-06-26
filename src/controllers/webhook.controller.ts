@@ -4,13 +4,12 @@ import { TelegramService } from '../services/telegram.service';
 
 const webhookApp = new Hono<{ Bindings: Env }>();
 
-// Menangani Webhook yang dikirim oleh server Telegram resmi
-webhookApp.post('/telegram/:tenant_id', async (c) => {
-    const tenantId = c.req.param('tenant_id');
+// Ubah parameter menjadi project_id
+webhookApp.post('/telegram/:project_id', async (c) => {
+    const projectId = c.req.param('project_id');
     const db = c.env.DB;
     const body = await c.req.json();
 
-    // Pastikan ini adalah pesan obrolan
     if (!body.message || !body.message.text) {
         return c.json({ success: true, message: 'Ignored non-text message' });
     }
@@ -19,53 +18,53 @@ webhookApp.post('/telegram/:tenant_id', async (c) => {
     const text = body.message.text.trim();
 
     try {
-        // 1. Dapatkan Token Bot pengguna dari D1 Database
-        const botConfig = await db.prepare(`SELECT bot_token FROM telegram_bots WHERE tenant_id = ? AND is_active = 1`)
-            .bind(tenantId)
+        // 1. Query ke tabel bot_configs yang baru
+        const botConfig = await db.prepare(`SELECT bot_token FROM bot_configs WHERE project_id = ? AND is_active = 1`)
+            .bind(projectId)
             .first<{ bot_token: string }>();
 
         if (!botConfig) {
-            return c.json({ success: false, message: 'Bot not configured or inactive' }, 404);
+            return c.json({ success: false, message: 'Bot not configured' }, 404);
         }
 
         const telegramService = new TelegramService(botConfig.bot_token);
 
-        // 2. Routing Perintah Bot Sederhana
-        if (text === '/start') {
-            await telegramService.sendMessage(
-                chatId, 
-                "<b>Welcome to our Store!</b>\n\nType /products to see our available catalog."
-            );
+        // 2. CEK CUSTOM COMMANDS TERLEBIH DAHULU (Fitur Baru)
+        const customCommand = await db.prepare(`SELECT reply_text FROM bot_commands WHERE project_id = ? AND command = ? AND is_active = 1`)
+            .bind(projectId, text)
+            .first<{ reply_text: string }>();
+
+        if (customCommand) {
+            await telegramService.sendMessage(chatId, customCommand.reply_text);
             return c.json({ success: true });
         }
 
+        // 3. Fallback ke perintah default (contoh: /products)
         if (text === '/products') {
-            // Ambil daftar produk yang aktif dari D1 Database
-            const products = await db.prepare(`SELECT title, price FROM products WHERE tenant_id = ? AND is_active = 1 LIMIT 10`)
-                .bind(tenantId)
+            // Ubah query filter menggunakan project_id
+            const products = await db.prepare(`SELECT title, price FROM products WHERE project_id = ? AND is_active = 1 LIMIT 10`)
+                .bind(projectId)
                 .all();
 
             if (products.results.length === 0) {
-                await telegramService.sendMessage(chatId, "Sorry, we don't have any products available right now.");
+                await telegramService.sendMessage(chatId, "Maaf, belum ada produk yang tersedia saat ini.");
                 return c.json({ success: true });
             }
 
-            let msg = "<b>Available Products:</b>\n\n";
+            let msg = "<b>Katalog Produk Kami:</b>\n\n";
             products.results.forEach((p: any, index: number) => {
                 msg += `${index + 1}. ${p.title} - <b>Rp ${p.price.toLocaleString('id-ID')}</b>\n`;
             });
-            msg += "\n<i>To purchase, please reply with the product number (feature in development).</i>";
-
             await telegramService.sendMessage(chatId, msg);
             return c.json({ success: true });
         }
 
-        // Tanggapan bawaan jika perintah tidak dikenali
-        await telegramService.sendMessage(chatId, "Command not recognized. Type /products to view catalog.");
+        // Tanggapan bawaan
+        await telegramService.sendMessage(chatId, "Perintah tidak dikenali. Ketik /products untuk melihat katalog.");
         return c.json({ success: true });
         
     } catch (error) {
-        return c.json({ success: false, message: 'Webhook processing failed' }, 500);
+        return c.json({ success: false, message: 'Webhook error' }, 500);
     }
 });
 
