@@ -51,20 +51,21 @@ export default createRoute((c) => {
                                 
                                 const endDate = new Date(p.subscription_end_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
 
-                                tbody.innerHTML += \`
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-bold text-gray-900 dark:text-white">\${p.store_name}</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">\${p.email}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">\${statusHtml}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">\${endDate}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button onclick="extendProject('\${p.id}')" class="text-brand hover:text-sky-700 mr-4 transition-colors">Extend 30 Days</button>
-                                            <button onclick="suspendProject('\${p.id}')" class="text-red-600 hover:text-red-900 transition-colors">Suspend</button>
-                                        </td>
-                                    </tr>
-                                \`;
+                                // Menggunakan string concatenation standar untuk menghindari error parsing esbuild
+                                const row = document.createElement('tr');
+                                row.innerHTML = 
+                                    '<td class="px-6 py-4 whitespace-nowrap">' +
+                                        '<div class="text-sm font-bold text-gray-900 dark:text-white">' + p.store_name + '</div>' +
+                                        '<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">' + p.email + '</div>' +
+                                    '</td>' +
+                                    '<td class="px-6 py-4 whitespace-nowrap">' + statusHtml + '</td>' +
+                                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">' + endDate + '</td>' +
+                                    '<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">' +
+                                        '<button onclick="extendProject(\\'' + p.id + '\\')" class="text-brand hover:text-sky-700 mr-4 transition-colors">Extend 30 Days</button>' +
+                                        '<button onclick="suspendProject(\\'' + p.id + '\\')" class="text-red-600 hover:text-red-900 transition-colors">Suspend</button>' +
+                                    '</td>';
+                                
+                                tbody.appendChild(row);
                             });
                         } else {
                             tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No projects found in the system.</td></tr>';
@@ -74,7 +75,6 @@ export default createRoute((c) => {
                     }
                 }
 
-                // Fungsi untuk memperpanjang langganan project
                 window.extendProject = async function(projectId) {
                     if (!confirm('Apakah Anda yakin ingin memperpanjang project ini selama 30 hari?')) return;
                     
@@ -91,7 +91,7 @@ export default createRoute((c) => {
                         const result = await response.json();
                         if (result.success) {
                             window.showToast('Project extended successfully', 'success');
-                            loadProjects(); // Muat ulang tabel
+                            loadProjects(); 
                         } else {
                             window.showToast(result.message || 'Failed to extend project', 'error');
                         }
@@ -100,7 +100,6 @@ export default createRoute((c) => {
                     }
                 };
 
-                // Fungsi untuk menangguhkan langganan project
                 window.suspendProject = async function(projectId) {
                     if (!confirm('Apakah Anda yakin ingin menangguhkan (suspend) project ini? Bot akan mati.')) return;
                     
@@ -111,14 +110,13 @@ export default createRoute((c) => {
                                 'Authorization': 'Bearer ' + token,
                                 'Content-Type': 'application/json'
                             },
-                            // days_to_add 0 karena kita hanya merubah statusnya saja
                             body: JSON.stringify({ project_id: projectId, days_to_add: 0, status: 'suspended' })
                         });
                         
                         const result = await response.json();
                         if (result.success) {
                             window.showToast('Project suspended', 'success');
-                            loadProjects(); // Muat ulang tabel
+                            loadProjects(); 
                         } else {
                             window.showToast(result.message || 'Failed to suspend project', 'error');
                         }
@@ -127,9 +125,8 @@ export default createRoute((c) => {
                     }
                 };
 
-                // Jalankan fungsi load data setelah komponen dimuat
                 document.addEventListener('DOMContentLoaded', loadProjects);
-            \`}} />
+            `}} />
         </div>,
         { title: 'Super Admin - Projects Management' }
     );
