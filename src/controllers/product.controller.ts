@@ -3,21 +3,25 @@ import { Env, JwtPayload } from '../types/index';
 
 const productApp = new Hono<{ Bindings: Env, Variables: { user: JwtPayload } }>();
 
-// Mendapatkan daftar produk milik tenant
+// Mendapatkan daftar produk milik suatu project spesifik
 productApp.get('/', async (c) => {
-    const user = c.get('user');
+    const projectId = c.req.param('project_id');
     const db = c.env.DB;
 
-    const products = await db.prepare(`SELECT * FROM products WHERE tenant_id = ? ORDER BY created_at DESC`)
-        .bind(user.tenant_id)
-        .all();
+    const products = await db.prepare(`
+        SELECT p.*, c.name as category_name
+        FROM products p
+        LEFT JOIN product_categories c ON p.category_id = c.id
+        WHERE p.project_id = ? 
+        ORDER BY p.created_at DESC
+    `).bind(projectId).all();
 
     return c.json({ success: true, data: products.results });
 });
 
-// Menambahkan produk baru
+// Menambahkan produk baru ke project
 productApp.post('/', async (c) => {
-    const user = c.get('user');
+    const projectId = c.req.param('project_id');
     const db = c.env.DB;
     const body = await c.req.json();
     
@@ -25,16 +29,18 @@ productApp.post('/', async (c) => {
 
     try {
         await db.prepare(`
-            INSERT INTO products (id, tenant_id, type, title, description, price, stock, h2h_api_url, h2h_api_key, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO products (id, project_id, category_id, type, title, description, price, stock, icon_url, h2h_api_url, h2h_api_key, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
             productId,
-            user.tenant_id,
+            projectId,
+            body.category_id,
             body.type,
             body.title,
             body.description,
             body.price,
             body.stock || 0,
+            body.icon_url || null,
             body.h2h_api_url || null,
             body.h2h_api_key || null,
             body.is_active !== undefined ? body.is_active : 1
@@ -48,13 +54,13 @@ productApp.post('/', async (c) => {
 
 // Menghapus produk
 productApp.delete('/:id', async (c) => {
-    const user = c.get('user');
+    const projectId = c.req.param('project_id');
     const db = c.env.DB;
     const productId = c.req.param('id');
 
-    // Filter tenant_id memastikan tenant hanya bisa menghapus produknya sendiri
-    const result = await db.prepare(`DELETE FROM products WHERE id = ? AND tenant_id = ?`)
-        .bind(productId, user.tenant_id)
+    // Filter project_id memastikan tenant hanya bisa menghapus produk di project miliknya
+    const result = await db.prepare(`DELETE FROM products WHERE id = ? AND project_id = ?`)
+        .bind(productId, projectId)
         .run();
 
     if (result.meta.changes === 0) {
