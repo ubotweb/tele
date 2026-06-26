@@ -3,7 +3,6 @@ import { Env, JwtPayload } from '../types/index';
 
 const accountApp = new Hono<{ Bindings: Env, Variables: { user: JwtPayload } }>();
 
-// Fungsi helper hash bawaan V8
 const hashPassword = async (password: string): Promise<string> => {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -32,15 +31,15 @@ accountApp.post('/update-password', async (c) => {
     const userId = c.get('user').id;
 
     if (!new_password || new_password.length < 6) {
-        return c.json({ success: false, message: 'Password baru minimal 6 karakter' }, 400);
+        return c.json({ success: false, message: 'New password must be at least 6 characters' }, 400);
     }
 
     try {
         const hashedPassword = await hashPassword(new_password);
         await c.env.DB.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).bind(hashedPassword, userId).run();
-        return c.json({ success: true, message: 'Password berhasil diperbarui. Silakan gunakan password baru pada login berikutnya.' });
+        return c.json({ success: true, message: 'Password updated successfully. Please use it for your next login.' });
     } catch (error) {
-        return c.json({ success: false, message: 'Terjadi kesalahan sistem' }, 500);
+        return c.json({ success: false, message: 'Internal server error occurred' }, 500);
     }
 });
 
