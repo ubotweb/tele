@@ -4,36 +4,39 @@ import { Env, JwtPayload } from '../types/index';
 export const subscriptionMiddleware = async (c: Context<{ Bindings: Env }>, next: Next) => {
     const user = c.get('user') as JwtPayload;
     
-    if (!user || !user.tenant_id) {
+    // Mengambil project_id spesifik dari parameter URL
+    const projectId = c.req.param('project_id');
+    
+    if (!projectId) {
         return c.json({ 
             success: false, 
-            message: 'Forbidden: Tenant ID not found in token context' 
-        }, 403);
+            message: 'Bad Request: project_id is required in URL parameters' 
+        }, 400);
     }
 
     try {
         const db = c.env.DB;
-        const query = `SELECT subscription_status, subscription_end_date FROM tenants WHERE id = ?`;
         
-        const tenant = await db.prepare(query)
-            .bind(user.tenant_id)
+        // Memastikan project ada dan benar-benar milik user yang memiliki token JWT ini
+        const project = await db.prepare(`SELECT subscription_status, subscription_end_date FROM projects WHERE id = ? AND user_id = ?`)
+            .bind(projectId, user.id)
             .first<{ subscription_status: string, subscription_end_date: string }>();
 
-        if (!tenant) {
-            return c.json({ success: false, message: 'Forbidden: Tenant record not found' }, 404);
+        if (!project) {
+            return c.json({ success: false, message: 'Forbidden: Project not found or unauthorized access' }, 403);
         }
 
-        if (tenant.subscription_status !== 'active') {
-            return c.json({ success: false, message: 'Forbidden: Subscription is not active' }, 403);
+        if (project.subscription_status !== 'active') {
+            return c.json({ success: false, message: 'Forbidden: Project subscription is not active. Please renew.' }, 403);
         }
 
-        const endDate = new Date(tenant.subscription_end_date);
+        const endDate = new Date(project.subscription_end_date);
         const now = new Date();
 
         if (endDate < now) {
-            // Melakukan pembaruan otomatis ke status expired jika waktu terlewati
-            await db.prepare(`UPDATE tenants SET subscription_status = 'expired' WHERE id = ?`)
-                .bind(user.tenant_id)
+            // Melakukan pembaruan otomatis ke status expired jika batas waktu terlewati
+            await db.prepare(`UPDATE projects SET subscription_status = 'expired' WHERE id = ?`)
+                .bind(projectId)
                 .run();
                 
             return c.json({ 
