@@ -4,21 +4,23 @@ import { TelegramService } from '../services/telegram.service';
 
 const botApp = new Hono<{ Bindings: Env, Variables: { user: JwtPayload } }>();
 
-// Mengambil pengaturan bot saat ini
+// Mengambil pengaturan bot saat ini untuk project spesifik
 botApp.get('/', async (c) => {
-    const user = c.get('user');
+    const projectId = c.req.param('project_id');
     const db = c.env.DB;
 
-    const bot = await db.prepare(`SELECT bot_token, bot_username, webhook_url, is_active FROM telegram_bots WHERE tenant_id = ?`)
-        .bind(user.tenant_id)
-        .first();
+    const bot = await db.prepare(`
+        SELECT bot_token, bot_username, webhook_url, is_active 
+        FROM bot_configs 
+        WHERE project_id = ?
+    `).bind(projectId).first();
 
     return c.json({ success: true, data: bot || null });
 });
 
-// Memperbarui atau menyimpan token bot dan mengatur Webhook
+// Memperbarui token bot dan Webhook
 botApp.post('/update', async (c) => {
-    const user = c.get('user');
+    const projectId = c.req.param('project_id');
     const db = c.env.DB;
     const { bot_token, bot_name, bot_description } = await c.req.json();
     const mainDomain = c.env.MAIN_DOMAIN;
@@ -26,41 +28,42 @@ botApp.post('/update', async (c) => {
     try {
         const telegramService = new TelegramService(bot_token);
         
-        // 1. Validasi Token dengan getMe
+        // 1. Validasi Token
         const me = await telegramService.getMe();
         if (!me.ok) {
             return c.json({ success: false, message: 'Invalid Telegram Bot Token' }, 400);
         }
 
         const botUsername = me.result.username;
-        const webhookUrl = `https://${mainDomain}/api/webhook/telegram/${user.tenant_id}`;
+        // Webhook URL kini mengarah ke spesifik project_id
+        const webhookUrl = `https://${mainDomain}/api/webhook/telegram/${projectId}`;
 
-        // 2. Terapkan Webhook
-        const webhookSecret = crypto.randomUUID().replace(/-/g, ''); // Secret dinamis
+        // 2. Terapkan Webhook ke Telegram
+        const webhookSecret = crypto.randomUUID().replace(/-/g, ''); 
         const isWebhookSet = await telegramService.setWebhook(webhookUrl, webhookSecret);
 
         if (!isWebhookSet) {
             return c.json({ success: false, message: 'Failed to set Telegram Webhook' }, 500);
         }
 
-        // 3. Opsional: Update Nama dan Deskripsi jika diberikan
+        // 3. Opsional: Update Nama dan Deskripsi
         if (bot_name) await telegramService.setMyName(bot_name);
         if (bot_description) await telegramService.setMyDescription(bot_description);
 
-        // 4. Simpan ke D1 Database (Upsert)
+        // 4. Simpan ke D1 Database
         await db.prepare(`
-            INSERT INTO telegram_bots (id, tenant_id, bot_token, bot_username, webhook_url, is_active)
-            VALUES (?, ?, ?, ?, ?, 1)
-            ON CONFLICT(tenant_id) DO UPDATE SET
+            INSERT INTO bot_configs (project_id, bot_token, bot_username, webhook_url, is_active)
+            VALUES (?, ?, ?, ?, 1)
+            ON CONFLICT(project_id) DO UPDATE SET
             bot_token = excluded.bot_token,
             bot_username = excluded.bot_username,
             webhook_url = excluded.webhook_url,
             is_active = 1
-        `).bind(crypto.randomUUID(), user.tenant_id, bot_token, botUsername, webhookUrl).run();
+        `).bind(projectId, bot_token, botUsername, webhookUrl).run();
 
         return c.json({ 
             success: true, 
-            message: 'Bot successfully configured and webhook is active',
+            message: 'Bot successfully configured for this project',
             data: { username: botUsername }
         });
     } catch (error) {
