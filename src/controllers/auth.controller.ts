@@ -66,4 +66,58 @@ authApp.post('/login', async (c) => {
     }
 });
 
+// Tambahkan endpoint ini di dalam file src/controllers/auth.controller.ts
+
+authApp.post('/register', async (c) => {
+    const { email, password, store_name } = await c.req.json();
+    const db = c.env.DB;
+
+    // 1. Validasi Input Dasar
+    if (!email || !password || !store_name) {
+        return c.json({ success: false, message: 'Email, password, dan nama toko wajib diisi' }, 400);
+    }
+
+    try {
+        // 2. Periksa apakah email sudah terdaftar
+        const existingUser = await db.prepare(`SELECT id FROM users WHERE email = ?`)
+            .bind(email)
+            .first();
+
+        if (existingUser) {
+            return c.json({ success: false, message: 'Email sudah terdaftar digunakan' }, 400);
+        }
+
+        // 3. Generasi UUID dan Hashing Password menggunakan Web Crypto API (V8 Native)
+        const userId = crypto.randomUUID();
+        const tenantId = crypto.randomUUID();
+        const hashedPassword = await hashPassword(password);
+
+        // Memberikan trial aktif selama 7 hari sejak pendaftaran secara default
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialEndDate.getDate() + 7);
+        const subscriptionEndDateStr = trialEndDate.toISOString();
+
+        // 4. Eksekusi Batch ke Cloudflare D1 (Menjaga Konsistensi Relasi Data)
+        await db.batch([
+            db.prepare(`
+                INSERT INTO users (id, email, password_hash, role, created_at, updated_at)
+                VALUES (?, ?, ?, 'tenant', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            `).bind(userId, email, hashedPassword),
+            
+            db.prepare(`
+                INSERT INTO tenants (id, user_id, store_name, subscription_status, subscription_end_date, created_at)
+                VALUES (?, ?, ?, 'active', ?, CURRENT_TIMESTAMP)
+            `).bind(tenantId, userId, store_name, subscriptionEndDateStr)
+        ]);
+
+        return c.json({
+            success: true,
+            message: 'Registrasi tenant berhasil. Silakan masuk ke akun Anda.'
+        });
+
+    } catch (error) {
+        console.error('Registration Error:', error);
+        return c.json({ success: false, message: 'Gagal melakukan registrasi, kesalahan internal server' }, 500);
+    }
+});
 export { authApp };
