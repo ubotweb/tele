@@ -9,7 +9,7 @@ export default jsxRenderer(({ children, title }) => {
         <Layout title={title || (projectId ? 'Project Workspace' : 'Tenant Dashboard')}>
             <div className="flex flex-col md:flex-row gap-6 relative min-h-screen">
                 
-                {/* SIDEBAR DESKTOP */}
+                {/* DESKTOP SIDEBAR */}
                 <aside className="hidden md:flex w-64 flex-shrink-0 flex-col">
                     <div className="bg-white dark:bg-darkcard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden sticky top-24">
                         <nav className="flex flex-col p-4 space-y-1">
@@ -26,7 +26,7 @@ export default jsxRenderer(({ children, title }) => {
                                     </a>
                                     <a href="/tenant/settings" className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                        <span className="font-medium text-sm">Akun & Langganan</span>
+                                        <span className="font-medium text-sm">Settings</span>
                                     </a>
                                 </>
                             ) : (
@@ -37,9 +37,9 @@ export default jsxRenderer(({ children, title }) => {
                                     </a>
                                     <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-2 pb-1">Menu</div>
                                     <a href={`/tenant/project/${projectId}`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Dashboard</span></a>
-                                    <a href={`/tenant/project/${projectId}/bot`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Token Telegram</span></a>
-                                    <a href={`/tenant/project/${projectId}/products`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Produk</span></a>
-                                    <a href={`/tenant/project/${projectId}/transactions`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Data Pesanan</span></a>
+                                    <a href={`/tenant/project/${projectId}/bot`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Telegram Token</span></a>
+                                    <a href={`/tenant/project/${projectId}/products`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Products</span></a>
+                                    <a href={`/tenant/project/${projectId}/transactions`} className="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"><span className="font-medium text-sm">Orders</span></a>
                                 </>
                             )}
                             
@@ -57,7 +57,7 @@ export default jsxRenderer(({ children, title }) => {
                     {children}
                 </div>
 
-                {/* STICKY BOTTOM NAV MOBILE (Sudah Diperbaiki Lengkap) */}
+                {/* MOBILE STICKY BOTTOM NAV */}
                 <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-darkcard/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 flex justify-around items-center p-2 z-50 pb-safe">
                     {!projectId ? (
                         <>
@@ -71,7 +71,7 @@ export default jsxRenderer(({ children, title }) => {
                             </a>
                             <a href="/tenant/settings" className="flex flex-col items-center p-2 text-gray-500 dark:text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                <span className="text-[10px] font-medium mt-1">Akun</span>
+                                <span className="text-[10px] font-medium mt-1">Settings</span>
                             </a>
                         </>
                     ) : (
@@ -82,17 +82,17 @@ export default jsxRenderer(({ children, title }) => {
                             </a>
                             <a href={`/tenant/project/${projectId}/products`} className="flex flex-col items-center p-2 text-gray-500 dark:text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                                <span className="text-[10px] font-medium mt-1">Produk</span>
+                                <span className="text-[10px] font-medium mt-1">Products</span>
                             </a>
                             <a href={`/tenant/project/${projectId}/transactions`} className="flex flex-col items-center p-2 text-gray-500 dark:text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
-                                <span className="text-[10px] font-medium mt-1">Order</span>
+                                <span className="text-[10px] font-medium mt-1">Orders</span>
                             </a>
                         </>
                     )}
                     <button onClick="window.logout()" className="flex flex-col items-center p-2 text-red-500">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        <span className="text-[10px] font-medium mt-1">Keluar</span>
+                        <span className="text-[10px] font-medium mt-1">Logout</span>
                     </button>
                 </nav>
             </div>
