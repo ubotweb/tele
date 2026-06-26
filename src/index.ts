@@ -16,6 +16,7 @@ import { transactionApp } from './controllers/transaction.controller';
 import { orderApp } from './controllers/order.controller';
 import { cloudApp } from './controllers/cloud.controller';
 import { accountApp } from './controllers/account.controller';
+import { userApp } from './controllers/user.controller'; // [BARU] Import user controller
 
 const apiApp = new Hono<{ Bindings: Env }>();
 
@@ -45,6 +46,7 @@ apiApp.use('/projects/:project_id/banners/*', subscriptionMiddleware);
 apiApp.use('/projects/:project_id/commands/*', subscriptionMiddleware);
 apiApp.use('/projects/:project_id/products/*', subscriptionMiddleware);
 apiApp.use('/projects/:project_id/transactions/*', subscriptionMiddleware);
+apiApp.use('/projects/:project_id/users/*', subscriptionMiddleware); // [BARU] Middleware users
 
 apiApp.route('/projects/:project_id/bot', botApp);
 apiApp.route('/projects/:project_id/categories', categoryApp);
@@ -52,6 +54,7 @@ apiApp.route('/projects/:project_id/banners', bannerApp);
 apiApp.route('/projects/:project_id/commands', commandApp);
 apiApp.route('/projects/:project_id/products', productApp);
 apiApp.route('/projects/:project_id/transactions', transactionApp);
+apiApp.route('/projects/:project_id/users', userApp); // [BARU] Route users
 
 apiApp.get('/', (c) => c.json({ success: true, message: 'SaaS Bot API V2' }));
 
