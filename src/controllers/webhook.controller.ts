@@ -98,4 +98,59 @@ webhookApp.post('/telegram/:project_id', async (c) => {
     }
 });
 
+// ============================================================================
+// 2. WEBHOOK TIKTOK GLOBAL
+// Endpoint: POST /api/webhook/tiktok/global
+// ============================================================================
+webhookApp.post('/tiktok/global', async (c) => {
+    const db = c.env.DB;
+    let body;
+
+    try {
+        body = await c.req.json();
+    } catch (e) {
+        return c.json({ success: false, message: 'Invalid JSON payload' }, 400);
+    }
+
+    const tiktokShopId = body.shop_id || body.seller_id;
+    const eventType = body.type || body.event; 
+
+    if (!tiktokShopId) {
+        return c.json({ success: false, message: 'Ignored: Missing TikTok Shop identifier' }, 200);
+    }
+
+    try {
+        // Query menggunakan kolom tiktok_shop_id yang sudah kita tambahkan
+        const config = await db.prepare(`SELECT project_id FROM bot_configs WHERE tiktok_shop_id = ? AND is_active = 1`)
+            .bind(tiktokShopId)
+            .first<{ project_id: string }>();
+
+        if (!config) {
+            return c.json({ success: true, message: 'Unregistered TikTok Shop' });
+        }
+
+        const projectId = config.project_id;
+
+        // Routing logika berdasarkan tipe event dari TikTok
+        switch (eventType) {
+            case 'NEW_ORDER':
+                console.log(`New TikTok Order for project: ${projectId}`);
+                break;
+            case 'ORDER_PAID':
+                console.log(`TikTok Order Paid for project: ${projectId}`);
+                break;
+            case 'NEW_COMMENT':
+                console.log(`New TikTok Comment for project: ${projectId}`);
+                break;
+            default:
+                console.log(`Unhandled TikTok event type: ${eventType}`);
+        }
+
+        return c.json({ success: true, message: 'TikTok Webhook Processed' });
+    } catch (error) {
+        console.error('TikTok Webhook Error:', error);
+        return c.json({ success: false, message: 'Internal server error processing TikTok webhook' }, 500);
+    }
+});
+
 export { webhookApp };
