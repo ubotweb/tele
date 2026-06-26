@@ -1,0 +1,56 @@
+import { createRoute } from 'honox/factory';
+
+export default createRoute((c) => {
+    return c.render(
+        <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 text-brand text-sm font-semibold mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Next-Gen Automation
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight max-w-4xl leading-tight">
+                Empower Your Business with <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-cyan-400">Telegram Store Bots</span>
+            </h1>
+            
+            <p className="mt-6 text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-2xl">
+                The ultimate SaaS platform to deploy automated digital storefronts on Telegram. Sell unique vouchers, regular files, and H2H products seamlessly with QRIS integration.
+            </p>
+            
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                <a href="/login" className="px-8 py-3.5 border border-transparent text-base font-medium rounded-lg text-white bg-brand hover:bg-sky-600 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                    Access Dashboard
+                </a>
+                <a href="#features" className="px-8 py-3.5 border border-gray-300 dark:border-gray-700 text-base font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-darkcard hover:bg-gray-50 dark:hover:bg-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Learn More
+                </a>
+            </div>
+
+            <div id="features" className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 text-left max-w-5xl">
+                <div className="p-6 bg-white dark:bg-darkcard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-brand mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Strict Isolation</h3>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Every tenant operates in an entirely isolated environment, ensuring maximum privacy and data security.</p>
+                </div>
+                <div className="p-6 bg-white dark:bg-darkcard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-brand mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Zero Race Condition</h3>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Our advanced database architecture guarantees safe transactions for unique digital assets.</p>
+                </div>
+                <div className="p-6 bg-white dark:bg-darkcard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-brand mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Automated Payments</h3>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Integrated QRIS webhook system processes payments and delivers products automatically 24/7.</p>
+                </div>
+            </div>
+        </div>,
+        { title: 'Home' }
+    );
+});
