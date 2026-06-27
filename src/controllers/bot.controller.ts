@@ -98,9 +98,13 @@ botApp.get('/tiktok/callback', async (c) => {
     }
 
     try {
-        // PERHATIAN: Masukkan APP KEY dan APP SECRET Anda di bawah ini
-        const appKey = 'APP_KEY_TIKTOK_ANDA'; 
-        const appSecret = 'APP_SECRET_TIKTOK_ANDA';
+        // PERHATIAN: Mengambil rahasia dari Environment Variable (Aman dari intipan)
+        const appKey = c.env.TIKTOK_APP_KEY; 
+        const appSecret = c.env.TIKTOK_APP_SECRET;
+
+        if (!appKey || !appSecret) {
+            return c.text('Konfigurasi server tidak valid: TikTok Secret belum diatur di sistem.', 500);
+        }
 
         // 1. Eksekusi API TikTok untuk menukar 'code' dengan 'access_token'
         // (URL di bawah adalah contoh umum API TikTok, pastikan sesuai dengan region dokumentasi Anda)
