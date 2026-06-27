@@ -3,22 +3,21 @@ import { createRoute } from 'honox/factory';
 export default createRoute((c) => {
     return c.render(
         <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-darkbg">
-            {/* Header / Navigation Menu */}
             <header className="w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-darkcard/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <a href="/" className="font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-brand to-cyan-400 tracking-tight">
                         Ubot Web
                     </a>
-                    <nav className="flex gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
+                    <nav className="hidden md:flex gap-6 text-sm font-medium text-gray-600 dark:text-gray-300 items-center">
                         <a href="/" className="hover:text-brand transition-colors">Home</a>
                         <a href="/about" className="hover:text-brand transition-colors">About Us</a>
                         <a href="/privacy" className="text-brand">Privacy Policy</a>
-                        <a href="/login" className="hover:text-brand transition-colors">Login</a>
+                        <a href="/terms" className="hover:text-brand transition-colors">Terms of Service</a>
+                        <a href="/login" className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-sky-600 transition-colors">Login / Register</a>
                     </nav>
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-grow max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8 w-full">
                 <div className="bg-white dark:bg-darkcard rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 md:p-12">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 text-brand text-sm font-semibold mb-6">
@@ -57,8 +56,7 @@ export default createRoute((c) => {
                 </div>
             </main>
 
-            {/* Footer */}
-            <footer className="w-full border-t border-gray-200 dark:border-gray-800 py-8 bg-white dark:bg-darkcard text-center">
+            <footer className="w-full border-t border-gray-200 dark:border-gray-800 py-8 bg-white dark:bg-darkcard text-center mt-auto">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     &copy; {new Date().getFullYear()} Ubot Web by PT Pasdigi Global Inovasi. All rights reserved.
                 </p>
