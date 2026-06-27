@@ -47,9 +47,15 @@ export default createRoute((c) => {
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TikTok Shop ID (seller_id)</label>
-                        <input type="text" id="tiktok_shop_id" placeholder="e.g. 74928193810" className="mt-1 block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkbg text-gray-900 dark:text-white focus:ring-2 focus:ring-brand outline-none transition-all" />
-                        <p className="text-xs text-gray-500 mt-1">Connect this project to your TikTok Shop globally.</p>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">TikTok Shop Connection</label>
+                        <div className="mt-2 flex items-center gap-4">
+                            <input type="text" id="tiktok_shop_id" readOnly placeholder="Not Connected" className="block w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed outline-none" />
+                            
+                            <button type="button" id="btn-tiktok-login" className="px-6 py-2.5 bg-black hover:bg-gray-800 text-white font-medium rounded-lg whitespace-nowrap transition-colors">
+                                Connect TikTok
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Click the button to securely authorize this project with your TikTok Shop via OAuth.</p>
                     </div>
 
                     {/* AFFILIATE */}
@@ -89,7 +95,13 @@ export default createRoute((c) => {
                             document.getElementById('display_name').value = data.data.display_name || '';
                             document.getElementById('description').value = data.data.description || '';
                             document.getElementById('admin_telegram_id').value = data.data.admin_telegram_id || '';
-                            document.getElementById('tiktok_shop_id').value = data.data.tiktok_shop_id || '';
+                            
+                            // Menampilkan tiktok_shop_id dari database jika sudah terkoneksi
+                            if (data.data.tiktok_shop_id) {
+                                document.getElementById('tiktok_shop_id').value = data.data.tiktok_shop_id;
+                                document.getElementById('btn-tiktok-login').innerText = 'Reconnect';
+                            }
+                            
                             document.getElementById('is_affiliate').value = data.data.is_affiliate || 0;
                             document.getElementById('affiliate_commission').value = data.data.affiliate_commission || 0;
                         }
@@ -99,6 +111,18 @@ export default createRoute((c) => {
                 }
 
                 document.addEventListener('DOMContentLoaded', loadBotConfig);
+
+                // Event listener untuk tombol Connect TikTok
+                document.getElementById('btn-tiktok-login').addEventListener('click', () => {
+                    const projectId = window.CURRENT_PROJECT_ID;
+                    const appId = "APP_KEY_TIKTOK_ANDA"; // Masukkan App Key dari TikTok Developer
+                    const redirectUri = encodeURIComponent(window.location.origin + "/api/projects/" + projectId + "/bot/tiktok/callback");
+                    
+                    // URL OAuth TikTok (Project ID disisipkan di state)
+                    const tiktokAuthUrl = \`https://auth.tiktok-us.com/v2/auth/authorize?client_id=\${appId}&response_type=code&redirect_uri=\${redirectUri}&state=\${projectId}\`;
+                    
+                    window.location.href = tiktokAuthUrl;
+                });
 
                 document.getElementById('bot-form').addEventListener('submit', async (e) => {
                     e.preventDefault();
