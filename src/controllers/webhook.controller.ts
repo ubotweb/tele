@@ -100,8 +100,22 @@ webhookApp.post('/telegram/:project_id', async (c) => {
 
 // ============================================================================
 // 2. WEBHOOK TIKTOK GLOBAL
-// Endpoint: POST /api/webhook/tiktok/global
 // ============================================================================
+
+// [BARU] WAJIB ADA: Endpoint GET untuk Verifikasi Handshake saat mendaftarkan URL di portal TikTok
+webhookApp.get('/tiktok/global', (c) => {
+    // Saat mendaftarkan URL, TikTok Shop akan mengirimkan parameter GET bernama 'challenge'
+    const challenge = c.req.query('challenge');
+    
+    if (challenge) {
+        // Mengembalikan challenge dalam format JSON agar TikTok memverifikasi URL ini aktif milik kita
+        return c.json({ challenge: challenge });
+    }
+    
+    return c.text('TikTok Webhook Endpoint Ready');
+});
+
+// Endpoint POST: Menerima data pesanan / event secara real-time dari TikTok
 webhookApp.post('/tiktok/global', async (c) => {
     const db = c.env.DB;
     let body;
