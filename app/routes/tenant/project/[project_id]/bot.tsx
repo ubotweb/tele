@@ -1,6 +1,9 @@
 import { createRoute } from 'honox/factory';
 
 export default createRoute((c) => {
+    // Tarik APP_KEY yang bersifat publik dari Environment Variables untuk disuntikkan ke script
+    const tiktokAppKey = c.env.TIKTOK_APP_KEY || '';
+
     return c.render(
         <div className="space-y-6">
             <div>
@@ -115,7 +118,13 @@ export default createRoute((c) => {
                 // Event listener untuk tombol Connect TikTok
                 document.getElementById('btn-tiktok-login').addEventListener('click', () => {
                     const projectId = window.CURRENT_PROJECT_ID;
-                    const appId = "APP_KEY_TIKTOK_ANDA"; // Masukkan App Key dari TikTok Developer
+                    const appId = "${tiktokAppKey}"; // Disuntikkan otomatis dari server Environment Variables
+                    
+                    if (!appId) {
+                        alert('Sistem belum dikonfigurasi untuk TikTok. Mohon hubungi administrator untuk menyetel TIKTOK_APP_KEY.');
+                        return;
+                    }
+
                     const redirectUri = encodeURIComponent(window.location.origin + "/api/projects/" + projectId + "/bot/tiktok/callback");
                     
                     // URL OAuth TikTok (Project ID disisipkan di state)
