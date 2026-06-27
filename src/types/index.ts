@@ -3,6 +3,8 @@ export interface Env {
     JWT_SECRET: string;
     ENVIRONMENT: string;
     MAIN_DOMAIN: string;
+    TIKTOK_APP_KEY: string;
+    TIKTOK_APP_SECRET: string;
 }
 
 export interface JwtPayload {
