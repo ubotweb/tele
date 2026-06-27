@@ -83,4 +83,62 @@ botApp.post('/update', async (c) => {
     }
 });
 
+// ============================================================================
+// [BARU] TIKTOK OAUTH CALLBACK
+// Menangkap data 'code' dari TikTok setelah user berhasil login
+// ============================================================================
+botApp.get('/tiktok/callback', async (c) => {
+    const code = c.req.query('code');
+    const projectId = c.req.query('state'); // Kita menyisipkan project_id di state saat memanggil URL otorisasi
+    const db = c.env.DB;
+
+    if (!code || !projectId) {
+        return c.text('Otorisasi gagal: Data otentikasi atau ID Project tidak lengkap', 400);
+    }
+
+    try {
+        // DI MASA DEPAN: Buka komentar ini dan sesuaikan dengan API resmi TikTok
+        /*
+        const tokenRes = await fetch('https://auth.tiktok-us.com/api/v2/token/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                app_key: 'APP_KEY_TIKTOK_ANDA',
+                app_secret: 'APP_SECRET_TIKTOK_ANDA',
+                auth_code: code,
+                grant_type: 'authorized_code'
+            })
+        });
+        const tokenData = await tokenRes.json();
+        const sellerId = tokenData.data.seller_id; // Identitas toko tiktok
+        */
+       
+        // Untuk saat ini: Simulasi mendapatkan seller_id dari TikTok
+        const sellerId = "DUMMY_TIKTOK_SHOP_ID_" + code.substring(0, 5); 
+
+        // Simpan ID TikTok Shop tersebut ke database sesuai project-nya
+        await db.prepare(`
+            UPDATE bot_configs SET tiktok_shop_id = ? WHERE project_id = ?
+        `).bind(sellerId, projectId).run();
+
+        // Kembalikan pengguna ke halaman dashboard dengan notifikasi sukses
+        return c.html(`
+            <html>
+                <head>
+                    <title>TikTok Connected</title>
+                </head>
+                <body>
+                    <script>
+                        alert('TikTok Shop Berhasil Dihubungkan ke sistem!');
+                        window.location.href = '/tenant/project/${projectId}/bot';
+                    </script>
+                </body>
+            </html>
+        `);
+    } catch (e) {
+        console.error('TikTok Auth Error:', e);
+        return c.text('Terjadi kesalahan saat menghubungkan TikTok. Silakan coba lagi.', 500);
+    }
+});
+
 export { botApp };
