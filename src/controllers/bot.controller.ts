@@ -8,6 +8,7 @@ botApp.get('/', async (c) => {
     const projectId = c.req.param('project_id');
     const db = c.env.DB;
 
+    // Menambahkan pengambilan access & refresh token (meski mungkin tidak ditampilkan ke frontend demi keamanan)
     const bot = await db.prepare(`
         SELECT bot_token, bot_username, webhook_url, is_active, display_name, description, admin_telegram_id, is_affiliate, affiliate_commission, tiktok_shop_id 
         FROM bot_configs 
@@ -28,7 +29,7 @@ botApp.post('/update', async (c) => {
         let botUsername = '';
         let webhookUrl = '';
 
-        // Validasi Telegram hanya dilakukan jika bot_token diisi
+        // Validasi Telegram
         if (bot_token && bot_token.trim() !== '') {
             const telegramService = new TelegramService(bot_token);
             const me = await telegramService.getMe();
@@ -84,12 +85,12 @@ botApp.post('/update', async (c) => {
 });
 
 // ============================================================================
-// [BARU] TIKTOK OAUTH CALLBACK
-// Menangkap data 'code' dari TikTok setelah user berhasil login
+// TIKTOK OAUTH CALLBACK (LIVE & TOKEN STORAGE)
+// Menangkap data 'code' dari TikTok, menukarkannya dengan Token, dan simpan.
 // ============================================================================
 botApp.get('/tiktok/callback', async (c) => {
     const code = c.req.query('code');
-    const projectId = c.req.query('state'); // Kita menyisipkan project_id di state saat memanggil URL otorisasi
+    const projectId = c.req.query('state'); 
     const db = c.env.DB;
 
     if (!code || !projectId) {
@@ -97,31 +98,44 @@ botApp.get('/tiktok/callback', async (c) => {
     }
 
     try {
-        // DI MASA DEPAN: Buka komentar ini dan sesuaikan dengan API resmi TikTok
-        /*
+        // PERHATIAN: Masukkan APP KEY dan APP SECRET Anda di bawah ini
+        const appKey = 'APP_KEY_TIKTOK_ANDA'; 
+        const appSecret = 'APP_SECRET_TIKTOK_ANDA';
+
+        // 1. Eksekusi API TikTok untuk menukar 'code' dengan 'access_token'
+        // (URL di bawah adalah contoh umum API TikTok, pastikan sesuai dengan region dokumentasi Anda)
         const tokenRes = await fetch('https://auth.tiktok-us.com/api/v2/token/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                app_key: 'APP_KEY_TIKTOK_ANDA',
-                app_secret: 'APP_SECRET_TIKTOK_ANDA',
+                app_key: appKey,
+                app_secret: appSecret,
                 auth_code: code,
                 grant_type: 'authorized_code'
             })
         });
+
         const tokenData = await tokenRes.json();
-        const sellerId = tokenData.data.seller_id; // Identitas toko tiktok
-        */
-       
-        // Untuk saat ini: Simulasi mendapatkan seller_id dari TikTok
-        const sellerId = "DUMMY_TIKTOK_SHOP_ID_" + code.substring(0, 5); 
 
-        // Simpan ID TikTok Shop tersebut ke database sesuai project-nya
+        // Jika respons dari TikTok gagal (biasanya code !== 0)
+        if (tokenData.code !== 0 || !tokenData.data) {
+            console.error('TikTok Token Error:', tokenData);
+            return c.text('Otorisasi gagal: ' + (tokenData.message || 'Gagal mendapatkan token'), 401);
+        }
+
+        // 2. Ekstrak data krusial dari respons TikTok
+        const sellerId = tokenData.data.seller_id; // Atau open_id, sesuai format toko
+        const accessToken = tokenData.data.access_token;
+        const refreshToken = tokenData.data.refresh_token;
+
+        // 3. Simpan ID Toko, Access Token, dan Refresh Token ke Database kita
         await db.prepare(`
-            UPDATE bot_configs SET tiktok_shop_id = ? WHERE project_id = ?
-        `).bind(sellerId, projectId).run();
+            UPDATE bot_configs 
+            SET tiktok_shop_id = ?, tiktok_access_token = ?, tiktok_refresh_token = ? 
+            WHERE project_id = ?
+        `).bind(sellerId, accessToken, refreshToken, projectId).run();
 
-        // Kembalikan pengguna ke halaman dashboard dengan notifikasi sukses
+        // 4. Redirect kembali ke UI Dashboard dengan pesan sukses
         return c.html(`
             <html>
                 <head>
@@ -129,7 +143,7 @@ botApp.get('/tiktok/callback', async (c) => {
                 </head>
                 <body>
                     <script>
-                        alert('TikTok Shop Berhasil Dihubungkan ke sistem!');
+                        alert('TikTok Shop Berhasil Dihubungkan secara permanen!');
                         window.location.href = '/tenant/project/${projectId}/bot';
                     </script>
                 </body>
@@ -137,7 +151,7 @@ botApp.get('/tiktok/callback', async (c) => {
         `);
     } catch (e) {
         console.error('TikTok Auth Error:', e);
-        return c.text('Terjadi kesalahan saat menghubungkan TikTok. Silakan coba lagi.', 500);
+        return c.text('Terjadi kesalahan sistem saat menghubungkan server ke TikTok. Silakan coba lagi.', 500);
     }
 });
 
