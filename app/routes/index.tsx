@@ -11,11 +11,11 @@ export default createRoute((c) => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight max-w-4xl leading-tight">
-                Empower Your Business with <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-cyan-400">Telegram Store Bots</span>
+                Powering <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand to-cyan-400">Ubot Web</span> for Telegram & TikTok
             </h1>
             
             <p className="mt-6 text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-2xl">
-                The ultimate SaaS platform to deploy automated digital storefronts on Telegram. Sell unique vouchers, regular files, and H2H products seamlessly with QRIS integration.
+                The ultimate SaaS platform to deploy automated digital storefronts on Telegram and TikTok. Simplify your workflow with a fully automatic, legal, and highly secure system. Sell products seamlessly with QRIS integration.
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
@@ -33,24 +33,24 @@ export default createRoute((c) => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Strict Isolation</h3>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Every tenant operates in an entirely isolated environment, ensuring maximum privacy and data security.</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Every tenant operates in an entirely isolated environment, ensuring maximum privacy and data security across platforms.</p>
                 </div>
                 <div className="p-6 bg-white dark:bg-darkcard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-brand mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Zero Race Condition</h3>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Our advanced database architecture guarantees safe transactions for unique digital assets.</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Legal & Secure</h3>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Operate with peace of mind. Our system is built to comply with legal standards, offering a safe environment for your business.</p>
                 </div>
                 <div className="p-6 bg-white dark:bg-darkcard rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-brand mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Automated Payments</h3>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Integrated QRIS webhook system processes payments and delivers products automatically 24/7.</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Fully Automated</h3>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Simplify your workload. From QRIS payments to product delivery, everything runs on autopilot 24/7 seamlessly.</p>
                 </div>
             </div>
         </div>,
-        { title: 'Home' }
+        { title: 'Ubot Web - Home' }
     );
 });
